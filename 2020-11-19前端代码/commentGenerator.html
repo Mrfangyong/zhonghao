@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>评论/弹幕生成器</title>
+  <link rel="stylesheet" href="/static/css/commentGenerator.css">
+  <script src="/static/js/jquery-1.8.3.min.js"></script>
+</head>
+<body>
+    <div class="titles">绩效中心
+        <div class="d-an"><a href="staff_index.html">返回首页</a></div>
+        <div class="d-an">欢迎登陆：{{ request.session.username }}</div>
+    </div>
+  <div class="content">
+    <div class="title">评论/弹幕生成</div>
+    <div class="div-box">
+      <div class="fl">
+        <div class="boxs">
+          <span>推送人姓名：</span>
+          <input id = "name" type="text" placeholder="不超过5个字" class="nameinp" maxlength="5">
+        </div>
+        <div class="boxs">
+          <span>推送人性别：</span>
+          <label><input type="radio" class="sexipt" name="sex" value="男">男</label>
+          <label><input type="radio" class="sexipt" name="sex" value="女">女</label>
+        </div>
+        <div class="boxs">
+          <span>类型：</span>
+          <label><input type="radio" class="sexipt" name="generate_type" value="1">1</label>
+          <label><input type="radio" class="sexipt" name="generate_type" value="2">2</label>
+          <p class="prompt">#组合1示例：惊才风逸 6翻了啊  大壮 简直要上天!!<br>#组合2示例：我来了！  河南省驻马店地区田间张小明实名支持大壮</p>
+        </div>
+        <div class="boxs">
+          <span>生成数量：</span>
+          <input id = "generate_nums" type="text" maxlength="4" class="numipt" placeholder="输入0-9999纯数字" onkeyup="this.value=this.value.replace(/\D/g,'')">
+        </div>
+        <div class="boxs">
+          <span>自定短句：</span>
+          <textarea placeholder="自定义的内容是形容词 一行一个" id = "custom"></textarea>
+        </div>
+        <div class="btn" onclick="getcomment()">提交</div>
+      </div>
+      <textarea readonly class="rg" id="comment_list" style="height: 532px;">
+
+      </textarea>
+    </div>
+
+  </div>
+</body>
+
+<script>
+    function getcomment() {
+        var name = document.getElementById('name').value;
+        var generate_nums = document.getElementById('generate_nums').value;
+        var custom = document.getElementById('custom').value;
+
+        var sex_obj = document.getElementsByName("sex");
+        for(var i=0; i<sex_obj.length; i ++){
+            if(sex_obj[i].checked){
+                var sex = sex_obj[i].value;
+            }
+        }
+        var generate_type_obj = document.getElementsByName("generate_type");
+        for(var j=0; j<generate_type_obj.length; j ++){
+            if(generate_type_obj[j].checked){
+                var generate_type = generate_type_obj[j].value;
+            }
+        }
+        $.ajax({
+                url: "/commentGenerator/",
+                type: "POST",
+                data: {"name": name, "generate_nums": generate_nums, "custom": custom,"sex":sex,"generate_type":generate_type},
+                dataType: "json",
+                success: function (data) {
+                    document.getElementById("comment_list").innerHTML="";
+                    for(let i=0;i<data["comment_list"].length;i++){
+                        var content = data['comment_list'][i];
+                        var htm = document.getElementById("comment_list").innerHTML;
+                        document.getElementById("comment_list").innerHTML = htm+content+'\n'
+
+                    }
+                }
+        })
+
+
+    }
+</script>
+
+</html>
